@@ -130,7 +130,10 @@ def djinni(html):
                 title = art.find('p', attrs={'class': 'title'})
                 href = domain + title.a['href']
                 content = art.find_all('p', attrs={'class': 'svelte-184g0n'})[-1].get_text(strip=True)
-                company = title.find('span', attrs={'class': 'company'})
+                try:
+                    company = title.find('span', attrs={'class': 'company'}).get_text(strip=True)
+                except:
+                    company = ''
 
                 jobs.append({
                     'title': title.a.text,
