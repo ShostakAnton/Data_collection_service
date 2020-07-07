@@ -131,6 +131,6 @@ def djinni(url):
 if __name__ == '__main__':
     url = 'https://djinni.co/jobs/?location=%D0%9A%D0%B8%D0%B5%D0%B2&primary_keyword=Python'
     jobs, errors = djinni(url)
-    h = codecs.open('work.txt', 'w', 'utf-8')
+    h = codecs.open('../work.txt', 'w', 'utf-8')
     h.write(str(jobs))
     h.close()

@@ -4,8 +4,11 @@ import requests
 from bs4 import BeautifulSoup as BS
 import codecs
 
+__all__ = ('work', 'rabota', 'dou', 'djinni', 'get_html')
+
 headers = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}  # имуляция действия поведения браузера
+
 
 
 def get_html(url):
@@ -109,7 +112,7 @@ def dou(html):
     else:
         errors.append({'url': url, 'title': 'page do not response'})
 
-    return jobs
+    return jobs, errors
 
 
 def djinni(html):
