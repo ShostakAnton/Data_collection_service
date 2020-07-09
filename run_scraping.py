@@ -1,5 +1,5 @@
 import os, sys
-
+import asyncio
 from django.contrib.auth import get_user_model
 
 proj = os.path.dirname(os.path.abspath('manage.py'))  # абсолютный путь к проекту
@@ -23,6 +23,8 @@ parsers = (
     (rabota, 'rabota')
 )
 
+jobs, errors = [], []
+
 def get_settings():
     qs = User.objects.filter(send_email=True).values()
     settings_lst = set((q['city_id'], q['language_id']) for q in qs)
@@ -41,27 +43,36 @@ def get_urls(_settings):
         urls.append(tmp)
     return urls
 
+async def main(value):
+    func, url, city, language = value
+    job, err = await loop.run_in_executor(None, func, get_html(url), city, language)
+    errors.extend(err)
+    jobs.extend(job)
 
 settings = get_settings()
 url_list = get_urls(settings)
 
-# city = City.objects.filter(slug='kiev').first()
-# language = Language.objects.filter(slug='python').first()
 
-jobs, errors = [], []
 
-for data in url_list:
+loop = asyncio.get_event_loop()         # содание цикла, где будут запускаться аши задачи
+tmp_tasks = [(func, data['url_data'][key], data['city'], data['language'])
+             for data in url_list
+             for func, key  in parsers]        # список задач
+tasks = asyncio.wait([loop.create_task(main(f)) for f in tmp_tasks])     # выполнение указаных задач
 
-    for func, key  in parsers:
-        url = data['url_data'][key]
-        j, e = func(get_html(url), city=data['city'], language=data['language'])
-        jobs += j
-        errors += e
+# for data in url_list:
+#
+#     for func, key  in parsers:
+#         url = data['url_data'][key]
+#         j, e = func(get_html(url), city=data['city'], language=data['language'])
+#         jobs += j
+#         errors += e
 
-k = 0
+loop.run_until_complete(tasks)
+loop.close()
+
+
 for job in jobs:
-    k += 1
-    print(k)
     v = Vacancy(**job)
     try:
         v.save()

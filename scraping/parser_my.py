@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup as BS
 import codecs
 
+
 __all__ = ('work', 'rabota', 'dou', 'djinni', 'get_html')
 
 headers = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -47,9 +48,9 @@ def work(html, city=None, language=None):
                     'language_id': language
                 })
             else:
-                errors.append({'url': href, 'title': 'div does not exists'})
+                errors.append({'url': domain, 'title': 'div does not exists'})
     else:
-        errors.append({'url': url, 'title': 'page do not response'})
+        errors.append({'url': url, 'domain': 'page do not response'})
 
     return jobs, errors
 
@@ -82,9 +83,9 @@ def rabota(html, city=None, language=None):
                     'language_id': language
                 })
         else:
-            errors.append({'url': href, 'title': 'div does not exists'})
+            errors.append({'url': domain, 'title': 'div does not exists'})
     else:
-        errors.append({'url': url, 'title': 'page do not response'})
+        errors.append({'url': domain, 'title': 'page do not response'})
 
     return jobs, errors
 
@@ -92,7 +93,7 @@ def rabota(html, city=None, language=None):
 def dou(html, city=None, language=None):
     jobs = []
     errors = []
-
+    domain = 'https://jobs.dou.ua/'
     if html:
         soup = BS(html, 'lxml')
         main_div = soup.find('div', id="vacancyListId")
@@ -115,9 +116,9 @@ def dou(html, city=None, language=None):
                     'language_id': language
                 })
         else:
-            errors.append({'url': href, 'title': 'div does not exists'})
+            errors.append({'url': domain, 'title': 'div does not exists'})
     else:
-        errors.append({'url': url, 'title': 'page do not response'})
+        errors.append({'url': domain, 'title': 'page do not response'})
 
     return jobs, errors
 
@@ -151,9 +152,9 @@ def djinni(html, city=None, language=None):
                     'language_id': language
                 })
         else:
-            errors.append({'url': href, 'title': 'div does not exists'})
+            errors.append({'url': domain, 'title': 'div does not exists'})
     else:
-        errors.append({'url': url, 'title': 'page do not response'})
+        errors.append({'url': domain, 'title': 'page do not response'})
 
     return jobs, errors
 
