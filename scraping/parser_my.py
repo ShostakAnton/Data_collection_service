@@ -12,13 +12,14 @@ headers = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;
 
 
 def get_html(url):
-    session = requests.Session()  # непрерывность действия во времени (имитация человека)
-    request = session.get(url, headers=headers)  # имуляция открытия странички в браузере
+    if url:
+        session = requests.Session()  # непрерывность действия во времени (имитация человека)
+        request = session.get(url, headers=headers)  # имуляция открытия странички в браузере
 
     return request.content
 
 
-def work(html):
+def work(html, city=None, language=None):
     jobs = []
     errors = []
     domain = 'https://www.work.ua'
@@ -42,6 +43,8 @@ def work(html):
                     'url': href,
                     'description': content,
                     'company': company,
+                    'city_id': city,
+                    'language_id': language
                 })
             else:
                 errors.append({'url': href, 'title': 'div does not exists'})
@@ -51,7 +54,7 @@ def work(html):
     return jobs, errors
 
 
-def rabota(html):
+def rabota(html, city=None, language=None):
     jobs = []
     errors = []
     domain = 'https://rabota.ua'
@@ -75,6 +78,8 @@ def rabota(html):
                     'url': href,
                     'description': content,
                     'company': company,
+                    'city_id': city,
+                    'language_id': language
                 })
         else:
             errors.append({'url': href, 'title': 'div does not exists'})
@@ -84,7 +89,7 @@ def rabota(html):
     return jobs, errors
 
 
-def dou(html):
+def dou(html, city=None, language=None):
     jobs = []
     errors = []
 
@@ -106,6 +111,8 @@ def dou(html):
                     'url': href,
                     'description': content,
                     'company': company.text,
+                    'city_id': city,
+                    'language_id': language
                 })
         else:
             errors.append({'url': href, 'title': 'div does not exists'})
@@ -115,7 +122,7 @@ def dou(html):
     return jobs, errors
 
 
-def djinni(html):
+def djinni(html, city=None, language=None):
     jobs = []
     errors = []
     domain = 'https://djinni.co/'
@@ -140,6 +147,8 @@ def djinni(html):
                     'url': href,
                     'description': content,
                     'company': company,
+                    'city_id': city,
+                    'language_id': language
                 })
         else:
             errors.append({'url': href, 'title': 'div does not exists'})

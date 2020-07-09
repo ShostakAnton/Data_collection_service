@@ -123,4 +123,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-AUTH_USER_MODEL = 'accounts.MyUser'   # переопределение юзера
+AUTH_USER_MODEL = 'accounts.MyUser'   # переопределение юзера, указываем какого юзера подставляем по умолчанию
