@@ -10,8 +10,11 @@ sys.path.append(proj)  # добавление пути в системные п�
 os.environ['DJANGO_SETTINGS_MODULE'] = "Data_collection_service.settings"  # установка настроек
 
 django.setup()
-from scraping.models import Vacancy, Error
-from Data_collection_service.settings import EMAIL_HOST_USER
+from scraping.models import Vacancy, Error, Url
+from scraping_service.settings import (
+    EMAIL_HOST_USER,
+    EMAIL_HOST, EMAIL_HOST_PASSWORD
+)
 
 ADMIN_USER = EMAIL_HOST_USER
 
@@ -22,7 +25,6 @@ text_content = f"Рассылка вакансий за {today}"
 from_email = EMAIL_HOST_USER
 
 empty = '<h2>К сожалению на сегодня по Вашим предпочтениям данных нет. </h2>'
-
 
 User = get_user_model()  # создание модели юзера
 
@@ -71,16 +73,51 @@ if users_dct:
 # msg.send()
 
 
-qs = Error.objects.filter(timestamp=today)      # получение ошибок
-if qs.exists():     # exists() полезен для определения нахождения объекта в QuerySet и наличия какого-либо объекта в QuerySet, особенно для больших QuerySet
+qs = Error.objects.filter(timestamp=today)  # получение ошибок
+subject = ''
+text_content = ''
+to = ADMIN_USER
+_html = ''
+if qs.exists():  # exists() полезен для определения нахождения объекта в QuerySet и наличия какого-либо объекта в QuerySet, особенно для больших QuerySet
     error = qs.first()
     data = error.data
-    _html = ''
     for i in data:
-        _html += f'<p"><a href="{ i["url"] }">Error: { i["title"] }</a></p><br>'
+        _html += f'<p"><a href="{i["url"]}">Error: {i["title"]}</a></p><br>'
     subject = f"Ошибки скрапинга {today}"
     text_content = "Ошибки скрапинга"
     to = ADMIN_USER
+
+qs = Url.objects.all().values('city', 'language')
+urls_dct = {(i['city'], i['language']): True for i in qs}       # {(1, 2): True}
+urls_err = ''
+for keys in users_dct.keys():
+    if keys not in urls_dct:
+        urls_err += f'<p"> Для города: {keys[0]} и ЯП: {keys[1]} отсутствуют урлы</p><br>'  # Для города: 2 и ЯП: 1 отсутствуют урлы
+if urls_err:
+    subject += ' Отсутствующие урлы'
+    _html += urls_err
+
+if subject:
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(_html, "text/html")
     msg.send()
+
+
+# import smtplib
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.text import MIMEText
+#
+# msg = MIMEMultipart('alternative')
+# msg['Subject'] = 'Список вакансий за  {}'.format(today)
+# msg['From'] = EMAIL_HOST_USER
+# mail = smtplib.SMTP()
+# mail.connect(EMAIL_HOST, 25)
+# mail.ehlo()
+# mail.starttls()
+# mail.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+#
+# html_m = "<h1>Hello world</h1>"
+# part = MIMEText(html_m, 'html')
+# msg.attach(part)
+# mail.sendmail(EMAIL_HOST_USER, [to], msg.as_string())
+# mail.quit()
