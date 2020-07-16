@@ -48,7 +48,7 @@ def work(html, city=None, language=None):
                     'language_id': language
                 })
             else:
-                errors.append({'url': domain, 'title': 'div does not exists'})
+                errors.append({'url': domain, 'title': 'Div does not exists'})
     else:
         errors.append({'url': url, 'domain': 'page do not response'})
 
