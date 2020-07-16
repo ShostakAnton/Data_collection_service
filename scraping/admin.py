@@ -4,7 +4,7 @@ from .models import City, Language, Vacancy, Error, Url
 
 @admin.register(Vacancy)
 class VacancyAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "url", "company"]  # отображение полей на админ-панели
+    list_display = ["id", "timestamp", "title", "url", "company"]  # отображение полей на админ-панели
 
     class Meta:
         model = Vacancy
@@ -21,4 +21,3 @@ class UrlAdmin(admin.ModelAdmin):
 admin.site.register(City)
 admin.site.register(Language)
 admin.site.register(Error)
-
