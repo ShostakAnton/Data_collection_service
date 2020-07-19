@@ -11,7 +11,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = "Data_collection_service.settings"  # у�
 
 django.setup()
 from scraping.models import Vacancy, Error, Url
-from scraping_service.settings import (
+from Data_collection_service.settings import (
     EMAIL_HOST_USER,
     EMAIL_HOST, EMAIL_HOST_PASSWORD
 )
@@ -80,28 +80,38 @@ to = ADMIN_USER
 _html = ''
 if qs.exists():  # exists() полезен для определения нахождения объекта в QuerySet и наличия какого-либо объекта в QuerySet, особенно для больших QuerySet
     error = qs.first()
-    data = error.data
+    data = error.data['errors']
     for i in data:
         _html += f'<p"><a href="{i["url"]}">Error: {i["title"]}</a></p><br>'
     subject = f"Ошибки скрапинга {today}"
     text_content = "Ошибки скрапинга"
-    to = ADMIN_USER
+
+    data = error.data['user_data']
+    if data:
+        _html += '<hr>'
+        _html += '<h2>Пожелания пользователей </h2>'
+        for i in data:
+            _html += f'<p">Город: {i["city"]}, Специальность:{i["language"]},  email:{i["email"]}</p><br>'
+        subject += f" Пожелания пользователей {today}"
+        text_content += "Пожелания пользователей"
 
 qs = Url.objects.all().values('city', 'language')
-urls_dct = {(i['city'], i['language']): True for i in qs}       # {(1, 2): True}
+urls_dct = {(i['city'], i['language']): True for i in qs}  # {(1, 2): True}
 urls_err = ''
 for keys in users_dct.keys():
     if keys not in urls_dct:
-        urls_err += f'<p"> Для города: {keys[0]} и ЯП: {keys[1]} отсутствуют урлы</p><br>'  # Для города: 2 и ЯП: 1 отсутствуют урлы
+        if keys[0] and keys[1]:
+            urls_err += f'<p"> Для города: {keys[0]} и ЯП: {keys[1]} отсутствуют урлы</p><br>'  # Для города: 2 и ЯП: 1 отсутствуют урлы
 if urls_err:
     subject += ' Отсутствующие урлы'
+    _html += '<hr>'
+    _html += '<h2>Отсутствующие урлы </h2>'
     _html += urls_err
 
 if subject:
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(_html, "text/html")
     msg.send()
-
 
 # import smtplib
 # from email.mime.multipart import MIMEMultipart
