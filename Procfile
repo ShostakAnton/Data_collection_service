@@ -1,0 +1,1 @@
+web: gunicorn Data_collection_service.wsgi
