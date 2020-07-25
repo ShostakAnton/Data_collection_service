@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('list/', list_view, name='list'),
     path('accounts/', include(('accounts.urls', 'accounts'))),
+    path('detail/<int:pk>/', VDetail.as_view(), name='detail'),
+    # path('detail/<int:pk>/', v_detail, name='detail'),
     path('', home_view, name='home'),
 ]
