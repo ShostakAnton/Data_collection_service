@@ -24,5 +24,6 @@ urlpatterns = [
     path('accounts/', include(('accounts.urls', 'accounts'))),
     path('detail/<int:pk>/', VDetail.as_view(), name='detail'),
     # path('detail/<int:pk>/', v_detail, name='detail'),
+    path('create/', VCreate.as_view(), name='create'),
     path('', home_view, name='home'),
 ]
