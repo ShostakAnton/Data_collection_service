@@ -2,10 +2,11 @@ from django.shortcuts import render
 from .models import Vacancy, City
 from .forms import FindForm, VForm
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, ListView, CreateView, UpdateView
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
 
 def home_view(request):
@@ -27,8 +28,9 @@ def list_view(request):
         if language:
             _filter['language__slug'] = language
 
-        qs = Vacancy.objects.filter(**_filter)
-
+        # qs = Vacancy.objects.filter(**_filter)
+        qs = Vacancy.objects.filter(**_filter).select_related('city', 'language')       # select_related - для
+            # добавления дополнительных полей (что бы избавиться от N+1 запроса)
         paginator = Paginator(qs, 10)
         page = request.GET.get("page")  # получаем номер страницы на которой сейчас находимя\ся
         page_obj = paginator.get_page(page)
@@ -74,7 +76,9 @@ class VList(ListView):
                 _filter['city__slug'] = city
             if language:
                 _filter['language__slug'] = language
-            qs = Vacancy.objects.filter(**_filter)
+            # qs = Vacancy.objects.filter(**_filter)
+            qs = Vacancy.objects.filter(**_filter).select_related('city', 'language')       # select_related - для
+            # добавления дополнительных полей (что бы избавиться от N+1 запроса)
         return qs
 
 
@@ -91,6 +95,14 @@ class VUpdate(UpdateView):
     # fields = '__all__'
     form_class = VForm
     template_name = 'scraping/create.html'
+    success_url = reverse_lazy('home')
 
 
-success_url = reverse_lazy('home')
+class VDelete(DeleteView):
+    model = Vacancy
+    # template_name = 'scraping/delete.html'
+    success_url = reverse_lazy('home')
+
+    def get(self, request, *args, **kwargs):
+        messages.success(request, 'Запись успешно удалена.')
+        return self.post(request, *args, **kwargs)
